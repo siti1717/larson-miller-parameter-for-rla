@@ -22,12 +22,12 @@ This application utilizes the **Larson–Miller Parameter method** to estimate t
 6. The system will automatically compute:
    - Stress–Temperature relationship  
    - Larson–Miller Parameter value  
-   - Predicted rupture time  
    - Estimated **remaining service life**
 
 ---
 
 This tool supports engineers, inspectors, and researchers in evaluating **creep damage** and predicting **the remaining operational life** of components such as **piping systems, pressure vessels, and boilers** operating at high temperatures.
 """)
+
 
 
