@@ -26,9 +26,17 @@ if uploaded_file:
 
     cs_TtoStress = CubicSpline(x2, y2, extrapolate=True)
     # Balik array sehingga x (y1 sebelumnya) meningkat
-    y1_rev = y1[::-1]  # 3.79 → 35.95
-    x1_rev = x1[::-1]  # urutannya ikut dibalik
-    cs_StresstoP = CubicSpline(y1_rev, x1_rev, extrapolate=True)
+    # Balik lalu urutkan berdasarkan y1_rev agar monotonik naik
+    y1_rev = y1[::-1]
+    x1_rev = x1[::-1]
+
+    # Urutkan berdasarkan y1_rev agar memenuhi syarat CubicSpline
+    sort_idx = np.argsort(y1_rev)
+    y1_sorted = y1_rev[sort_idx]
+    x1_sorted = x1_rev[sort_idx]
+
+cs_StresstoP = CubicSpline(y1_sorted, x1_sorted, extrapolate=True)
+
 
     Stress_vals = cs_TtoStress(T_values)
     P_vals = cs_StresstoP(Stress_vals)
@@ -59,5 +67,6 @@ if uploaded_file:
         file_name="LMP_Calculator_Mean2.xlsx",
         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
+
 
 
