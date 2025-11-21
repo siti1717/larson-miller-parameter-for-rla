@@ -26,6 +26,8 @@ if uploaded_file:
 
     cs_TtoStress = CubicSpline(x2, y2, extrapolate=True)
     # Balik array sehingga x (y1 sebelumnya) meningkat
+    y1_rev = y1[::-1]  # 3.79 → 35.95
+    x1_rev = x1[::-1]  # urutannya ikut dibalik
     cs_StresstoP = CubicSpline(y1_rev, x1_rev, extrapolate=True)
 
     Stress_vals = cs_TtoStress(T_values)
@@ -57,4 +59,5 @@ if uploaded_file:
         file_name="LMP_Calculator_Mean2.xlsx",
         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
+
 
