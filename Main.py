@@ -13,10 +13,10 @@ This application utilizes the **Larson–Miller Parameter method** to estimate t
 1. Go to the **Temperature** menu to calculate the **operating temperature (°R)** based on the input data.  
 2. Upload an **Excel (.xlsx)** file containing the **thickness values (mm)**.  
 3. Select the appropriate **material model** from the sidebar menu:
-   - Mean 1¼ Cr – ½ Mo–Si Steel  
-   - Mean 2¼ Cr – 1 Mo Steel  
-   - Minimum 1¼ Cr – ½ Mo–Si Steel  
-   - Minimum 2¼ Cr – 1 Mo Steel  
+   - Mean 1 : 1¼ Cr – ½ Mo–Si Steel  
+   - Mean 2 : 2¼ Cr – 1 Mo Steel  
+   - Minimum 1 : 1¼ Cr – ½ Mo–Si Steel  
+   - Minimum 2 : 2¼ Cr – 1 Mo Steel  
 4. Upload an **Excel or CSV file** containing the required **stress or temperature data**.  
 5. Input or confirm the **service time (years)** as needed.  
 6. The system will automatically compute:
@@ -29,3 +29,4 @@ This application utilizes the **Larson–Miller Parameter method** to estimate t
 
 This tool supports engineers, inspectors, and researchers in evaluating **creep damage** and predicting **the remaining operational life** of components such as **piping systems, pressure vessels, and boilers** operating at high temperatures.
 """)
+
