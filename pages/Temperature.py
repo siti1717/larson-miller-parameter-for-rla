@@ -28,7 +28,7 @@ if uploaded_file is not None and t_value > 0:
         st.error("❌ There is a value of x ≤ 0. Log10 cannot be calculated.")
     else:
         # Convert x from mm to mil and calculate temperature in Rankine
-        df['T (°R)'] = (np.log10(df['x'] / 25.4) + 7.1438) / ((2.1761e-4) * (20 + np.log10(t_value)) - 459.67 )
+        df['T (°R)'] = ((np.log10(df['x'] / 25.4) + 7.1438) / ((2.1761e-4) * (20 + np.log10(t_value))) - 459.67 )
 
         st.success("✅ Calculation completed successfully!")
         st.dataframe(df)
@@ -53,4 +53,5 @@ elif uploaded_file is None:
     st.info("ℹ️ Please upload an Excel or CSV file first.")
 elif t_value == 0:
     st.warning("⚠️ Enter a value for t (years) greater than 0.")
+
 
