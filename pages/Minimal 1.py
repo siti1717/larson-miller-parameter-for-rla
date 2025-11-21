@@ -4,7 +4,7 @@ import numpy as np
 from scipy.interpolate import CubicSpline
 from io import BytesIO
 
-st.title("Larson–Miller Parameter - Mean 1¼ Cr - ½ Mo Steel (T → Stress, P)")
+st.title("Larson–Miller Parameter - Minimal 1¼ Cr - ½ Mo Steel (T → Stress, P)")
 
 # Ubah type menjadi xlsx dan xls
 uploaded_file = st.file_uploader(
@@ -59,3 +59,4 @@ if uploaded_file:
         file_name="LMP_Calculator_Minimal1.xlsx",
         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
+
