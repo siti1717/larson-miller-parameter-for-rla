@@ -17,7 +17,7 @@ This application utilizes the **Larson–Miller Parameter method** to estimate t
    - Mean 2 : 2¼ Cr – 1 Mo Steel  
    - Minimum 1 : 1¼ Cr – ½ Mo–Si Steel  
    - Minimum 2 : 2¼ Cr – 1 Mo Steel  
-4. Upload an **Excel or CSV file** containing the required **stress or temperature data**.  
+4. Upload an **Excel or CSV file** containing the required **temperature data**.  
 5. Input or confirm the **service time (years)** as needed.  
 6. The system will automatically compute:
    - Stress–Temperature relationship  
@@ -29,4 +29,5 @@ This application utilizes the **Larson–Miller Parameter method** to estimate t
 
 This tool supports engineers, inspectors, and researchers in evaluating **creep damage** and predicting **the remaining operational life** of components such as **piping systems, pressure vessels, and boilers** operating at high temperatures.
 """)
+
 
