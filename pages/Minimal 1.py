@@ -7,7 +7,7 @@ from io import BytesIO
 st.title("Larson–Miller Parameter - 1¼ Cr - ½ Mo Steel (T & t input dari interface)")
 
 uploaded_file = st.file_uploader(
-    label="Upload Excel data spline (x2, y2 untuk T→Stress)",
+    label="Upload Excel data spline (x1, y1 untuk T→Stress)",
     help="File Excel berisi dua kolom: x2 (Temperature °F) dan y2 (Stress ksi)",
     type=["xlsx", "xls"]
 )
@@ -64,4 +64,5 @@ elif not T_input:
     st.info("✏️ Masukkan temperatur (°F).")
 elif t_years_input == 0:
     st.info("⏱️ Masukkan waktu operasi (tahun).")
+
 
