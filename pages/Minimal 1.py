@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 from io import BytesIO
 
-st.title("Larson–Miller Parameter - 2¼ Cr - 1 Mo Steel (Stress from Excel, Manual Temperature Input)")
+st.title("Larson–Miller Parameter - Minimal 1¼ Cr - ½ Mo Steel (P → Stress)")
 
 # --- File uploader ---
 uploaded_file = st.file_uploader(
@@ -58,3 +58,4 @@ elif not uploaded_file:
     st.warning("📂 Please upload an Excel file containing the stress (ksi) column.")
 elif T_input == 0:
     st.info("✏️ Please enter the operating temperature (°F) to start the calculation.")
+
