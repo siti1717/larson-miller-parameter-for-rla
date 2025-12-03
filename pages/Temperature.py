@@ -3,56 +3,82 @@ import pandas as pd
 import numpy as np
 from io import BytesIO
 
-st.title("Larson–Miller Calculator: T in Rankine (°R)")
+st.title("Larson–Miller Calculator: Temperature (T) in Rankine (°R)")
 
-# Upload Excel or CSV file
+st.markdown("""
+This calculator computes **temperature (T)** from the Larson–Miller oxidation equation:
+
+\[
+\log x = -7.1438 + 2.1761\times10^{-4}\,T\,(20 + \log t)
+\]
+
+Where:
+- **x** = oxide thickness (in mils, converted automatically from mm)  
+- **t** = exposure time (in hours, converted automatically from years)  
+- **T** = temperature in °Rankine (°R)
+---
+**Formula used in this calculator:**
+\[
+T = \frac{\log(x\times39.37) + 7.1438}{2.1761\times10^{-4}\,(20 + \log(t\times8760))}
+\]
+---
+""")
+
+# === Upload Excel or CSV file ===
 uploaded_file = st.file_uploader(
-    label="Upload data file (first column = thickness (mm))",
+    label="📂 Upload data file (first column = oxide thickness (mm))",
     type=["xlsx", "xls", "csv"]
 )
 
-# Input t (years)
-t_value = st.number_input("Enter the value of t (years)", min_value=0.0, format="%.6f")
+# === Input operation time (years) ===
+t_value = st.number_input("Enter exposure time (years):", min_value=0.0, step=0.1, format="%.3f")
 
 if uploaded_file is not None and t_value > 0:
-    # Detect file type and read accordingly
+    # Read file depending on type
     file_name = uploaded_file.name.lower()
     if file_name.endswith(".csv"):
         df = pd.read_csv(uploaded_file)
     else:
         df = pd.read_excel(uploaded_file)
 
-    df.columns = ['x'] + list(df.columns[1:])
+    # Rename first column
+    df.columns = ['x_mm'] + list(df.columns[1:])
 
-    if (df['x'] <= 0).any():
-        st.error("❌ There is a value of x ≤ 0. Log10 cannot be calculated.")
+    if (df['x_mm'] <= 0).any():
+        st.error("❌ Some values of thickness (x) ≤ 0. Log10 cannot be calculated.")
     else:
-        # Convert x from mm to mil and calculate temperature in Rankine
-        df['T (°F)'] = ((np.log10(df['x'] / 25.4) + 7.1438) / ((2.1761e-4) * (20 + np.log10(t_value))) - 459.67 )
+        # --- Conversion ---
+        df['x_mils'] = df['x_mm'] * 39.3701      # mm → mils
+        t_hours = t_value * 365 * 24             # years → hours
+
+        # --- Calculation ---
+        logx = np.log10(df['x_mils'])
+        logt = np.log10(t_hours)
+
+        df['T (°R)'] = (logx + 7.1438) / (2.1761e-4 * (20 + logt))
+        df['T (°F)'] = df['T (°R)'] - 459.67
+        df['T (°C)'] = (df['T (°F)'] - 32) * 5/9
 
         st.success("✅ Calculation completed successfully!")
         st.dataframe(df)
 
-        # Export results to Excel
+        # --- Export to Excel ---
         output = BytesIO()
         with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
             df.to_excel(writer, index=False, sheet_name='Results')
             workbook = writer.book
             worksheet = writer.sheets['Results']
             fmt = workbook.add_format({'num_format': '0.0000'})
-            worksheet.set_column('B:B', 20, fmt)  # format the T(°R) column
+            worksheet.set_column('B:D', 20, fmt)
 
         st.download_button(
             label="📥 Download Excel Result",
             data=output.getvalue(),
-            file_name="Temperature_Calculation.xlsx",
+            file_name="Larson_Miller_Temperature_Result.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
 
 elif uploaded_file is None:
-    st.info("ℹ️ Please upload an Excel or CSV file first.")
+    st.info("ℹ️ Please upload an Excel or CSV file containing oxide thickness (mm).")
 elif t_value == 0:
-    st.warning("⚠️ Enter a value for t (years) greater than 0.")
-
-
-
+    st.warning("⚠️ Please enter an exposure time (years) greater than 0.")
