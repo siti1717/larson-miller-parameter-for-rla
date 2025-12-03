@@ -7,11 +7,13 @@ from io import BytesIO
 st.title("Larson–Miller Parameter - 1¼ Cr - ½ Mo Steel (Dual Spline: Temperature & Stress)")
 
 st.markdown("""
-This app calculates **creep life** from two separate spline interpolations:
+This app calculates **creep life** from two spline interpolations:
 1. **Temperature spline:** Temperature → P → Life  
 2. **Stress spline:** Stress → P → Life  
 
-📌 Note: Temperature data is read from the **second column** of the uploaded Excel file.
+📌 Temperature is read from the **second column** of the uploaded Excel file.  
+📌 Stress is read from the **first column** of the uploaded Excel file.  
+Default reference temperature for stress-based life is **950 °F** (editable).
 """)
 
 # === Upload files ===
@@ -64,33 +66,32 @@ y1_rev = y1[::-1]
 x1_rev = x1[::-1]
 cs_StressToP = CubicSpline(y1_rev, x1_rev, extrapolate=True)
 
-# === PROCESS BOTH ===
+# === PROCESS BOTH FILES ===
 if uploaded_temp and uploaded_stress:
     df_T = pd.read_excel(uploaded_temp)
     df_S = pd.read_excel(uploaded_stress)
 
-    # read 2nd column for temperature, 1st column for stress
+    # Read column 2 for Temperature and column 1 for Stress
     T_vals = df_T.iloc[:, 1].dropna().to_numpy()
     Stress_vals = df_S.iloc[:, 0].dropna().to_numpy()
 
-    # === Temperature → P → Life ===
+    # --- Temperature → P → Life ---
     P_from_T = cs_TtoP(T_vals)
     T_rankine = T_vals + 459.67
     t_hours_T = 10 ** ((P_from_T * 1000 / T_rankine) - 20)
     t_years_T = t_hours_T / (24 * 365)
 
-    # === Stress → P → Life ===
+    # --- Stress → P → Life ---
     P_from_Stress = cs_StressToP(Stress_vals)
-    T_ref = st.number_input("Enter reference temperature (°F) for Stress-based life:", min_value=0.0, step=1.0)
-    if T_ref > 0:
-        T_ref_R = T_ref + 459.67
-        t_hours_S = 10 ** ((P_from_Stress * 1000 / T_ref_R) - 20)
-        t_years_S = t_hours_S / (24 * 365)
-    else:
-        t_hours_S = np.zeros_like(P_from_Stress)
-        t_years_S = np.zeros_like(P_from_Stress)
+    T_ref = st.number_input(
+        "Enter reference temperature (°F) for Stress-based life (default 950):",
+        min_value=0.0, step=1.0, value=950.0
+    )
+    T_ref_R = T_ref + 459.67
+    t_hours_S = 10 ** ((P_from_Stress * 1000 / T_ref_R) - 20)
+    t_years_S = t_hours_S / (24 * 365)
 
-    # === Combine both results ===
+    # --- Combine results ---
     df_out = pd.DataFrame({
         "Temperature (°F)": T_vals,
         "P (from Temperature Spline)": P_from_T,
