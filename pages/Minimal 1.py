@@ -80,7 +80,6 @@ if uploaded_file:
     t_hours_T = 10 ** ((P_from_T * 1000 / T_rankine) - 20)
     t_hours_T = np.minimum(t_hours_T, 200000)
     t_years_T = t_hours_T / (24 * 365)
-    status_T = np.where(t_years_T >= 5, "SAFE", "REPLACE")
 
     # === PATH 2: From Stress ===
     P_from_S = cs_StressToP(Stress_vals)
@@ -93,7 +92,7 @@ if uploaded_file:
     t_hours_S = 10 ** ((P_from_S * 1000 / T_ref_R) - 20)
     t_hours_S = np.minimum(t_hours_S, 200000)
     t_years_S = t_hours_S / (24 * 365)
-    status_S = np.where(t_years_S >= 5, "SAFE", "REPLACE")
+
 
     # === OUTPUT TABLE ===
     df_out = pd.DataFrame({
@@ -128,3 +127,4 @@ if uploaded_file:
 
 else:
     st.info("📂 Please upload an Excel file with Stress (col 1) and Temperature (col 2).")
+
