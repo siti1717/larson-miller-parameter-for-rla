@@ -1,60 +1,54 @@
-import streamlit as st
+import streamlit as st 
+import pandas as pd
 import numpy as np
+from io import BytesIO
 
-st.title("Calculate Temperature (T) from Larson–Miller Equation")
+st.title("Larson–Miller Calculator: Temperature (T) in Rankine (°R)")
 
-st.markdown("""
-Equation:
-\[
-log x = -7.1438 + 2.1761×10⁻⁴ × (20 + log t)
-\]
+uploaded_file = st.file_uploader(
+    label="Upload data file (first column = oxide thickness (mm))",
+    type=["xlsx", "xls", "csv"]
+)
 
-Where:
-- **x** = oxide thickness (in mils, converted automatically from mm)  
-- **t** = time (in hours, converted automatically from years)  
-- **T** = temperature in °R (Rankine)
-""")
-
-# --- Input from user ---
-x_mm = st.number_input("Enter oxide thickness (mm):", min_value=0.0, step=0.01)
 t_years = st.number_input("Enter exposure time (years):", min_value=0.0, step=0.1)
 
-if x_mm > 0 and t_years > 0:
-    # --- Convert units ---
-    x_mils = x_mm * 39.3701             # mm → mils
-    t_hours = t_years * 365 * 24        # years → hours
+if uploaded_file is not None and t_years > 0:
+    # Read file
+    if uploaded_file.name.lower().endswith(".csv"):
+        df = pd.read_csv(uploaded_file)
+    else:
+        df = pd.read_excel(uploaded_file)
+    df.columns = ['x'] + list(df.columns[1:])
 
-    # --- Calculate components ---
-    logx = np.log10(x_mils)
+    # Convert units
+    df['x_mils'] = df['x'] * 39.3701      # mm → mils
+    t_hours = t_years * 365 * 24          # years → hours
+
+    # Calculate temperature in Rankine
+    logx = np.log10(df['x_mils'])
     logt = np.log10(t_hours)
-    
-    numerator = logx + 7.1438
-    denominator = 2.1761e-4 * (20 + logt)
-    
-    T_rankine = numerator / denominator
-    T_fahrenheit = T_rankine - 459.67
-    T_celsius = (T_fahrenheit - 32) * 5/9
 
-    st.success("✅ Calculation completed!")
-    st.write(f"**x (converted)** = {x_mils:.4f} mils")
-    st.write(f"**log x** = {logx:.5f}")
-    st.write(f"**log t (hours)** = {logt:.5f}")
-    st.write(f"**T (Rankine)** = {T_rankine:.2f} °R")
-    st.write(f"**T (Fahrenheit)** = {T_fahrenheit:.2f} °F")
-    st.write(f"**T (Celsius)** = {T_celsius:.2f} °C")
+    df['T (°R)'] = (logx + 7.1438) / (2.1761e-4 * (20 + logt))
+    df['T (°F)'] = df['T (°R)'] - 459.67
+    df['T (°C)'] = (df['T (°F)'] - 32) * 5/9
 
-    # --- Optional detailed explanation ---
-    st.markdown(f"""
-    ---
-    **Computation steps:**
-    - Convert thickness: {x_mm} mm × 39.3701 = {x_mils:.4f} mils  
-    - Convert time: {t_years} years × 365 × 24 = {t_hours:.0f} hours  
-    - log(x) = {logx:.5f}  
-    - log(t) = {logt:.5f}  
-    - Numerator = log(x) + 7.1438 = {numerator:.4f}  
-    - Denominator = 2.1761×10⁻⁴ × (20 + log t) = {denominator:.6f}  
-    - T = {T_rankine:.2f} °R = {T_fahrenheit:.2f} °F = {T_celsius:.2f} °C
-    """)
+    st.success("✅ Calculation completed successfully!")
+    st.dataframe(df)
 
-else:
-    st.info("✏️ Please enter positive values for both thickness (mm) and exposure time (years) to start calculation.")
+    # Download Excel
+    output = BytesIO()
+    with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+        df.to_excel(writer, index=False, sheet_name='Results')
+    output.seek(0)
+
+    st.download_button(
+        label="📥 Download Excel Result",
+        data=output.getvalue(),
+        file_name="LMP_Temperature_Result.xlsx",
+        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
+
+elif uploaded_file is None:
+    st.info("ℹ️ Please upload an Excel or CSV file first.")
+elif t_years == 0:
+    st.warning("⚠️ Enter a value for t (years) greater than 0.")
