@@ -4,7 +4,7 @@ import numpy as np
 from scipy.interpolate import CubicSpline
 from io import BytesIO
 
-st.title("Larson–Miller Parameter - 2¼ Cr - 1 Mo Steel (Stress → P from Master Curve)")
+st.title("Larson–Miller Parameter - 1¼ Cr - ½ Mo Steel (Stress → P from Master Curve)")
 
 # --- Upload Excel: only one column (Stress ksi) ---
 uploaded_file = st.file_uploader(
@@ -68,3 +68,4 @@ elif not uploaded_file:
     st.warning("📂 Please upload an Excel file containing the stress (ksi) column.")
 elif T_input == 0:
     st.info("✏️ Please enter the operating temperature (°F) to start the calculation.")
+
