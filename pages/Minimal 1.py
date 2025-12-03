@@ -4,34 +4,30 @@ import numpy as np
 from scipy.interpolate import CubicSpline
 from io import BytesIO
 
-st.title("Larson–Miller Parameter - 1¼ Cr - ½ Mo Steel (Temperature & Stress)")
+st.title("Larson–Miller Parameter - 1¼ Cr - ½ Mo Steel (Fixed Temperature & Stress Spline)")
 
 st.markdown("""
-This app calculates **creep life** from two spline interpolations:
+This app calculates **creep life** using two spline correlations:
 1. **Temperature spline:** Temperature → P → Life  
 2. **Stress spline:** Stress → P → Life  
 
-📌 Temperature is read from the **second column** of the uploaded Excel file.  
-📌 Stress is read from the **first column** of the uploaded Excel file.  
-Default reference temperature for stress-based life is **950 °F** (editable).  
-🕒 If predicted life > **200,000 hours**, the result will be capped at **200,000 hours**.
+📘 Notes:
+- Temperature values are read from the **second column** of the uploaded Excel file.  
+- Stress values are read from the **first column**.  
+- Results are limited to **200,000 hours** maximum.
 """)
 
 # === Upload files ===
 uploaded_temp = st.file_uploader(
-    label="Upload an Excel file for Temperature (°F)",
-    help="File should contain temperature values in the **second column (column B)**.",
+    label="Upload Temperature Excel (°F in 2nd column)",
     type=["xlsx", "xls"]
 )
-
 uploaded_stress = st.file_uploader(
-    label="Upload an Excel file for Stress (ksi)",
-    help="File should contain stress values in the **first column (column A)**.",
+    label="Upload Stress Excel (ksi in 1st column)",
     type=["xlsx", "xls"]
 )
 
-# === MASTER SPLINES ===
-# Spline 1: Temperature → P
+# === SPLINE TEMPERATURE (x2, y2) ===
 x2 = np.array([
     427.00938639356104,533.863950267865,640.5369779181265,747.0870294166173,
     823.918728223842,838.4923750229345,851.7011434943004,862.9059831055836,
@@ -50,9 +46,13 @@ y2 = np.array([
     8.457933485957398,7.79618607878723,7.108590441621292,6.507864488808227,
     5.924271539996955,5.424856371263967
 ])
-cs_TtoP = CubicSpline(x2, y2, extrapolate=True)
+# Pastikan x meningkat
+sort_idx = np.argsort(x2)
+x2_sorted = x2[sort_idx]
+y2_sorted = y2[sort_idx]
+cs_TtoP = CubicSpline(x2_sorted, y2_sorted, extrapolate=True)
 
-# Spline 2: Stress → P
+# === SPLINE STRESS (x1, y1) ===
 x1 = np.array([
     30.31,30.69,31.07,31.45,31.83,32.12,32.26,32.62,32.94,33.27,33.53,33.80,
     34.03,34.17,34.46,34.72,34.86,35.16,35.32,35.62,35.87,36.10,36.42,36.74,
@@ -67,23 +67,24 @@ y1_rev = y1[::-1]
 x1_rev = x1[::-1]
 cs_StressToP = CubicSpline(y1_rev, x1_rev, extrapolate=True)
 
-# === PROCESS BOTH FILES ===
+# === PROSES FILE ===
 if uploaded_temp and uploaded_stress:
     df_T = pd.read_excel(uploaded_temp)
     df_S = pd.read_excel(uploaded_stress)
 
-    # Read column 2 for Temperature and column 1 for Stress
+    # Temperature dari kolom ke-2
     T_vals = df_T.iloc[:, 1].dropna().to_numpy()
     Stress_vals = df_S.iloc[:, 0].dropna().to_numpy()
 
-    # --- Temperature → P → Life ---
+    # === TEMPERATURE → P → LIFE ===
+    # Pastikan T dalam Fahrenheit, ubah ke Rankine untuk rumus
     P_from_T = cs_TtoP(T_vals)
     T_rankine = T_vals + 459.67
     t_hours_T = 10 ** ((P_from_T * 1000 / T_rankine) - 20)
-    t_hours_T = np.minimum(t_hours_T, 200000)   # Cap at 200000 hours
+    t_hours_T = np.minimum(t_hours_T, 200000)  # batas maksimum
     t_years_T = t_hours_T / (24 * 365)
 
-    # --- Stress → P → Life ---
+    # === STRESS → P → LIFE ===
     P_from_Stress = cs_StressToP(Stress_vals)
     T_ref = st.number_input(
         "Enter reference temperature (°F) for Stress-based life (default 950):",
@@ -91,25 +92,25 @@ if uploaded_temp and uploaded_stress:
     )
     T_ref_R = T_ref + 459.67
     t_hours_S = 10 ** ((P_from_Stress * 1000 / T_ref_R) - 20)
-    t_hours_S = np.minimum(t_hours_S, 200000)   # Cap at 200000 hours
+    t_hours_S = np.minimum(t_hours_S, 200000)
     t_years_S = t_hours_S / (24 * 365)
 
-    # --- Combine results ---
+    # === COMBINE RESULT ===
     df_out = pd.DataFrame({
         "Temperature (°F)": T_vals,
-        "P (from Temperature Spline)": P_from_T,
+        "P from Temperature Spline": P_from_T,
         "Life from T (hours, max 200000)": t_hours_T,
         "Life from T (years)": t_years_T,
         "Stress (ksi)": Stress_vals,
-        "P (from Stress Spline)": P_from_Stress,
+        "P from Stress Spline": P_from_Stress,
         "Life from Stress (hours, max 200000)": t_hours_S,
         "Life from Stress (years)": t_years_S
     })
 
-    st.success("✅ Calculations completed successfully!")
+    st.success("✅ Dual spline calculations completed successfully!")
     st.dataframe(df_out)
 
-    # --- Download Excel ---
+    # === Download Excel ===
     output = BytesIO()
     with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
         df_out.to_excel(writer, index=False, sheet_name='Dual_Spline_Life')
@@ -118,12 +119,11 @@ if uploaded_temp and uploaded_stress:
     st.download_button(
         label="📥 Download Excel Result",
         data=output,
-        file_name="LMP_Strees dan Temperature_Minimal 1_RLA.xlsx",
+        file_name="LMP_DualSpline_Life_Fixed.xlsx",
         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
 
 elif not uploaded_temp:
-    st.warning("📂 Please upload the Temperature Excel file (values in second column).")
+    st.warning("📂 Please upload the Temperature Excel file (values in 2nd column).")
 elif not uploaded_stress:
-    st.warning("📂 Please upload the Stress Excel file (values in first column).")
-
+    st.warning("📂 Please upload the Stress Excel file (values in 1st column).")
