@@ -13,7 +13,8 @@ This app calculates **creep life** from two spline interpolations:
 
 📌 Temperature is read from the **second column** of the uploaded Excel file.  
 📌 Stress is read from the **first column** of the uploaded Excel file.  
-Default reference temperature for stress-based life is **950 °F** (editable).
+Default reference temperature for stress-based life is **950 °F** (editable).  
+🕒 If predicted life > **200,000 hours**, the result will be capped at **200,000 hours**.
 """)
 
 # === Upload files ===
@@ -79,6 +80,7 @@ if uploaded_temp and uploaded_stress:
     P_from_T = cs_TtoP(T_vals)
     T_rankine = T_vals + 459.67
     t_hours_T = 10 ** ((P_from_T * 1000 / T_rankine) - 20)
+    t_hours_T = np.minimum(t_hours_T, 200000)   # Cap at 200000 hours
     t_years_T = t_hours_T / (24 * 365)
 
     # --- Stress → P → Life ---
@@ -89,17 +91,18 @@ if uploaded_temp and uploaded_stress:
     )
     T_ref_R = T_ref + 459.67
     t_hours_S = 10 ** ((P_from_Stress * 1000 / T_ref_R) - 20)
+    t_hours_S = np.minimum(t_hours_S, 200000)   # Cap at 200000 hours
     t_years_S = t_hours_S / (24 * 365)
 
     # --- Combine results ---
     df_out = pd.DataFrame({
         "Temperature (°F)": T_vals,
         "P (from Temperature Spline)": P_from_T,
-        "Life from T (hours)": t_hours_T,
+        "Life from T (hours, max 200000)": t_hours_T,
         "Life from T (years)": t_years_T,
         "Stress (ksi)": Stress_vals,
         "P (from Stress Spline)": P_from_Stress,
-        "Life from Stress (hours)": t_hours_S,
+        "Life from Stress (hours, max 200000)": t_hours_S,
         "Life from Stress (years)": t_years_S
     })
 
