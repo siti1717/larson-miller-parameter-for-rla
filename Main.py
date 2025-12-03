@@ -88,11 +88,12 @@ to export all data (Temperature, Stress, P, and Life predictions) into an Excel 
 
 ## **📘 Example Output**
 
-| Temperature (°F) | P from T | Life (hours) | Stress (ksi) | P from Stress | Life (hours) | Life (years) | Status |
-|-----------------:|----------:|--------------:|--------------:|---------------:|---------------:|---------------:|:--------|
-| 970.4 | 35.71 | 93,241 | 4.69 | 42.47 | 200,000 | 22.8 | ✅ SAFE |
-| 970.4 | 35.71 | 93,241 | 4.92 | 40.92 | 200,000 | 22.8 | ✅ SAFE |
+| Temperature (°F) | P from T | Life (hours) | Life (years) | Stress (ksi) | P from Stress | Life (hours) | Life (years) | Status |
+|-----------------:|----------:|--------------:|--------------:|---------------:|---------------:|---------------:|---------------:|
+| 970.4 | 35.71 | 93,241 | 10,64 | 4.69 | 42.47 | 200,000 | 22.8 | 
+| 970.4 | 35.71 | 93,241 | 10,64 | 4.92 | 40.92 | 200,000 | 22.8 | 
 """)
+
 
 
 
