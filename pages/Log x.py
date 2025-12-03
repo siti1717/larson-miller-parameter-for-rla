@@ -6,7 +6,7 @@ st.title("Calculate Temperature (T) from Larson–Miller Equation")
 st.markdown("""
 Equation:
 \[
-\log x = -7.1438 + 2.1761 \times 10^{-4} \, T \, (20 + \log t)
+log x = -7.1438 + 2.1761×10⁻⁴ × (20 + log t)
 \]
 
 Where:
