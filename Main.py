@@ -1,9 +1,5 @@
 import streamlit as st
 
-st.set_page_config(page_title="Larson-Miller Parameter", layout="wide")
-
-st.title("🔬 Larson–Miller Parameter – Remaining Life Assessment")
-
 st.markdown("""
 # 🧭 **User Guide – Larson–Miller Parameter Web Application**
 
@@ -97,6 +93,7 @@ to export all data (Temperature, Stress, P, and Life predictions) into an Excel 
 | 970.4 | 35.71 | 93,241 | 4.69 | 42.47 | 200,000 | 22.8 | ✅ SAFE |
 | 970.4 | 35.71 | 93,241 | 4.92 | 40.92 | 200,000 | 22.8 | ✅ SAFE |
 """)
+
 
 
 
