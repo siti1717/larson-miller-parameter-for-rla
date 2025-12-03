@@ -83,20 +83,12 @@ The system will automatically compute both methods:
 
 ---
 
-## **7️⃣ Status Interpretation**
-
-| Status | Criteria | Description |
-|:--------|:----------|:-------------|
-| ✅ **SAFE** | Remaining life ≥ 5 years | The component is still within safe operational limits. |
-| ⚠️ **REPLACE** | Remaining life < 5 years | The component is approaching its design end-of-life. |
-
----
-
-## **8️⃣ Download Results**
+## **7️⃣ Download Results**
 After computation, click **📥 Download Excel Result**  
 to export all data (Temperature, Stress, P, and Life predictions) into an Excel report.
 
 ---
+
 
 ## **📘 Example Output**
 
@@ -105,6 +97,7 @@ to export all data (Temperature, Stress, P, and Life predictions) into an Excel 
 | 970.4 | 35.71 | 93,241 | 4.69 | 42.47 | 200,000 | 22.8 | ✅ SAFE |
 | 970.4 | 35.71 | 93,241 | 4.92 | 40.92 | 200,000 | 22.8 | ✅ SAFE |
 """)
+
 
 
 
