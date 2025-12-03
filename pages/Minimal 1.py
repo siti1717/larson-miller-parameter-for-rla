@@ -4,7 +4,7 @@ import numpy as np
 from scipy.interpolate import CubicSpline
 from io import BytesIO
 
-st.title("Larson–Miller Parameter - 1¼ Cr - ½ Mo Steel (Dual Spline: Temperature & Stress)")
+st.title("Larson–Miller Parameter - 1¼ Cr - ½ Mo Steel (Temperature & Stress)")
 
 st.markdown("""
 This app calculates **creep life** from two spline interpolations:
@@ -106,7 +106,7 @@ if uploaded_temp and uploaded_stress:
         "Life from Stress (years)": t_years_S
     })
 
-    st.success("✅ Dual spline calculations completed successfully!")
+    st.success("✅ Calculations completed successfully!")
     st.dataframe(df_out)
 
     # --- Download Excel ---
@@ -118,7 +118,7 @@ if uploaded_temp and uploaded_stress:
     st.download_button(
         label="📥 Download Excel Result",
         data=output,
-        file_name="LMP_DualSpline_Life.xlsx",
+        file_name="LMP_Strees dan Temperature_Minimal 1_RLA.xlsx",
         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
 
@@ -126,3 +126,4 @@ elif not uploaded_temp:
     st.warning("📂 Please upload the Temperature Excel file (values in second column).")
 elif not uploaded_stress:
     st.warning("📂 Please upload the Stress Excel file (values in first column).")
+
