@@ -4,20 +4,31 @@ import numpy as np
 from scipy.interpolate import CubicSpline
 from io import BytesIO
 
-st.set_page_config(page_title="Larson–Miller Dual Spline Calculator", layout="wide")
-
-st.title("Larson–Miller Parameter - 1¼ Cr - ½ Mo Steel")
-st.subheader("Dual Spline Mode: Temperature → P and Stress → P")
+st.title("Larson–Miller Parameter - 1¼ Cr - ½ Mo Steel (Dual Spline: Temperature & Stress)")
 
 st.markdown("""
-This tool calculates **Larson–Miller Parameter (P)** and **predicted life** using:
-1. **Temperature-based spline** (input temperature manually)
-2. **Stress-based spline** (upload Excel stress data)
+This tool calculates **Larson–Miller Parameter (P)** using two separate spline correlations:
+1. **Temperature-based spline**  
+2. **Stress-based spline**  
 
----
+Both datasets are uploaded independently via Excel files.
 """)
 
-# === SPLINE TEMPERATURE DATA ===
+# === Upload Temperature Excel ===
+uploaded_temp = st.file_uploader(
+    label="Upload an Excel file for Temperature (°F)",
+    help="The file should contain one column with temperature values in °F.",
+    type=["xlsx", "xls"]
+)
+
+# === Upload Stress Excel ===
+uploaded_stress = st.file_uploader(
+    label="Upload an Excel file for Stress (ksi)",
+    help="The file should contain one column with stress values in ksi.",
+    type=["xlsx", "xls"]
+)
+
+# --- SPLINE 1: Temperature → P (use your x2,y2 data) ---
 x2 = np.array([
     427.00938639356104,533.863950267865,640.5369779181265,747.0870294166173,
     823.918728223842,838.4923750229345,851.7011434943004,862.9059831055836,
@@ -36,9 +47,9 @@ y2 = np.array([
     8.457933485957398,7.79618607878723,7.108590441621292,6.507864488808227,
     5.924271539996955,5.424856371263967
 ])
-cs_TtoStress = CubicSpline(x2, y2, extrapolate=True)
+cs_TtoP = CubicSpline(x2, y2, extrapolate=True)
 
-# === SPLINE STRESS DATA ===
+# --- SPLINE 2: Stress → P (use your x1,y1 data) ---
 x1 = np.array([
     30.31,30.69,31.07,31.45,31.83,32.12,32.26,32.62,32.94,33.27,33.53,33.80,
     34.03,34.17,34.46,34.72,34.86,35.16,35.32,35.62,35.87,36.10,36.42,36.74,
@@ -53,74 +64,43 @@ y1_rev = y1[::-1]
 x1_rev = x1[::-1]
 cs_StressToP = CubicSpline(y1_rev, x1_rev, extrapolate=True)
 
-# === INPUT: TEMPERATURE SECTION ===
-st.header("1️⃣ Temperature-based Calculation")
-T_input = st.number_input("Enter operating temperature (°F):", min_value=0.0, step=1.0)
+# === PROCESS BOTH FILES ===
+if uploaded_temp and uploaded_stress:
+    df_temp = pd.read_excel(uploaded_temp)
+    df_stress = pd.read_excel(uploaded_stress)
 
-if T_input > 0:
-    Stress_from_T = cs_TtoStress(T_input)
-    P_from_T = cs_StressToP(Stress_from_T)
+    T_vals = df_temp.iloc[:, 0].dropna().to_numpy()
+    Stress_vals = df_stress.iloc[:, 0].dropna().to_numpy()
 
-    T_rankine = T_input + 459.67
-    t_hours_T = 10 ** ((P_from_T * 1000 / T_rankine) - 20)
-    t_years_T = t_hours_T / (24 * 365)
+    # Interpolate to get P
+    P_from_T = cs_TtoP(T_vals)
+    P_from_Stress = cs_StressToP(Stress_vals)
 
-    df_temp = pd.DataFrame({
-        "Temperature (°F)": [T_input],
-        "Stress (ksi)": [Stress_from_T],
-        "P (from Temp)": [P_from_T],
-        "Predicted Life (hours)": [t_hours_T],
-        "Predicted Life (years)": [t_years_T]
-    })
-
-    st.success("✅ Temperature-based interpolation completed!")
-    st.dataframe(df_temp)
-
-# === INPUT: STRESS SECTION ===
-st.header("2️⃣ Stress-based Calculation (Upload Excel)")
-
-uploaded_file = st.file_uploader(
-    label="Upload an Excel file (first column = Stress (ksi))",
-    help="The file should contain only one column with stress values in ksi.",
-    type=["xlsx", "xls"]
-)
-
-if uploaded_file:
-    df = pd.read_excel(uploaded_file)
-    Stress_vals = df.iloc[:, 0].dropna().to_numpy()
-    P_vals = cs_StressToP(Stress_vals)
-
-    # Default: use T_input if available
-    if T_input > 0:
-        T_rankine = T_input + 459.67
-    else:
-        T_rankine = 1000  # default assumption if not input
-
-    t_hours = 10 ** ((P_vals * 1000 / T_rankine) - 20)
-    t_years = t_hours / (24 * 365)
-
-    df_stress = pd.DataFrame({
+    # Combine both results
+    df_out = pd.DataFrame({
+        "Temperature (°F)": T_vals,
+        "P (from Temperature Spline)": P_from_T,
         "Stress (ksi)": Stress_vals,
-        "Temperature (°F)": [T_input if T_input > 0 else np.nan] * len(Stress_vals),
-        "P (from Stress)": P_vals,
-        "Predicted Life (hours)": t_hours,
-        "Predicted Life (years)": t_years
+        "P (from Stress Spline)": P_from_Stress
     })
 
-    st.success("✅ Stress-based interpolation completed!")
-    st.dataframe(df_stress)
+    st.success("✅ Calculations completed using both splines!")
+    st.dataframe(df_out)
 
-    # --- DOWNLOAD BOTH RESULTS ---
+    # --- DOWNLOAD EXCEL RESULT ---
     output = BytesIO()
     with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
-        if T_input > 0:
-            df_temp.to_excel(writer, index=False, sheet_name='From_Temperature')
-        df_stress.to_excel(writer, index=False, sheet_name='From_Stress')
+        df_out.to_excel(writer, index=False, sheet_name='Dual_Spline_Result')
     output.seek(0)
 
     st.download_button(
-        label="📥 Download Excel Results (Both Methods)",
+        label="📥 Download Excel Result",
         data=output,
-        file_name="LMP_DualSpline_Results.xlsx",
+        file_name="LMP_Dual_Spline_Result.xlsx",
         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
+
+elif not uploaded_temp:
+    st.warning("📂 Please upload the Temperature Excel file.")
+elif not uploaded_stress:
+    st.warning("📂 Please upload the Stress Excel file.")
