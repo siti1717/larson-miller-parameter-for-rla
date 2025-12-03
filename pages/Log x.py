@@ -15,7 +15,7 @@ Where:
 """)
 
 # --- Input from user ---
-x = st.number_input("Enter value of x (stress, ksi):", min_value=0.0, step=0.1)
+x = st.number_input("Enter value of oxide thickness (mm):", min_value=0.0, step=0.1)
 t = st.number_input("Enter value of t (time, hours):", min_value=0.0, step=1.0)
 
 if x > 0 and t > 0:
