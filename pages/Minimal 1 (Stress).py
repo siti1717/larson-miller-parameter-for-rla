@@ -7,28 +7,28 @@ from io import BytesIO
 st.title("Larson–Miller Parameter - 1¼ Cr - ½ Mo Steel (Dual Spline: Temperature & Stress)")
 
 st.markdown("""
-This tool calculates **Larson–Miller Parameter (P)** using two separate spline correlations:
-1. **Temperature-based spline**  
-2. **Stress-based spline**  
+This app calculates **creep life** from two separate spline interpolations:
+1. **Temperature spline:** Temperature → P → Life  
+2. **Stress spline:** Stress → P → Life  
 
-Both datasets are uploaded independently via Excel files.
+📌 Note: Temperature data is read from the **second column** of the uploaded Excel file.
 """)
 
-# === Upload Temperature Excel ===
+# === Upload files ===
 uploaded_temp = st.file_uploader(
     label="Upload an Excel file for Temperature (°F)",
-    help="The file should contain one column with temperature values in °F.",
+    help="File should contain temperature values in the **second column (column B)**.",
     type=["xlsx", "xls"]
 )
 
-# === Upload Stress Excel ===
 uploaded_stress = st.file_uploader(
     label="Upload an Excel file for Stress (ksi)",
-    help="The file should contain one column with stress values in ksi.",
+    help="File should contain stress values in the **first column (column A)**.",
     type=["xlsx", "xls"]
 )
 
-# --- SPLINE 1: Temperature → P (use your x2,y2 data) ---
+# === MASTER SPLINES ===
+# Spline 1: Temperature → P
 x2 = np.array([
     427.00938639356104,533.863950267865,640.5369779181265,747.0870294166173,
     823.918728223842,838.4923750229345,851.7011434943004,862.9059831055836,
@@ -49,7 +49,7 @@ y2 = np.array([
 ])
 cs_TtoP = CubicSpline(x2, y2, extrapolate=True)
 
-# --- SPLINE 2: Stress → P (use your x1,y1 data) ---
+# Spline 2: Stress → P
 x1 = np.array([
     30.31,30.69,31.07,31.45,31.83,32.12,32.26,32.62,32.94,33.27,33.53,33.80,
     34.03,34.17,34.46,34.72,34.86,35.16,35.32,35.62,35.87,36.10,36.42,36.74,
@@ -64,43 +64,61 @@ y1_rev = y1[::-1]
 x1_rev = x1[::-1]
 cs_StressToP = CubicSpline(y1_rev, x1_rev, extrapolate=True)
 
-# === PROCESS BOTH FILES ===
+# === PROCESS BOTH ===
 if uploaded_temp and uploaded_stress:
-    df_temp = pd.read_excel(uploaded_temp)
-    df_stress = pd.read_excel(uploaded_stress)
+    df_T = pd.read_excel(uploaded_temp)
+    df_S = pd.read_excel(uploaded_stress)
 
-    T_vals = df_temp.iloc[:, 0].dropna().to_numpy()
-    Stress_vals = df_stress.iloc[:, 0].dropna().to_numpy()
+    # read 2nd column for temperature, 1st column for stress
+    T_vals = df_T.iloc[:, 1].dropna().to_numpy()
+    Stress_vals = df_S.iloc[:, 0].dropna().to_numpy()
 
-    # Interpolate to get P
+    # === Temperature → P → Life ===
     P_from_T = cs_TtoP(T_vals)
-    P_from_Stress = cs_StressToP(Stress_vals)
+    T_rankine = T_vals + 459.67
+    t_hours_T = 10 ** ((P_from_T * 1000 / T_rankine) - 20)
+    t_years_T = t_hours_T / (24 * 365)
 
-    # Combine both results
+    # === Stress → P → Life ===
+    P_from_Stress = cs_StressToP(Stress_vals)
+    T_ref = st.number_input("Enter reference temperature (°F) for Stress-based life:", min_value=0.0, step=1.0)
+    if T_ref > 0:
+        T_ref_R = T_ref + 459.67
+        t_hours_S = 10 ** ((P_from_Stress * 1000 / T_ref_R) - 20)
+        t_years_S = t_hours_S / (24 * 365)
+    else:
+        t_hours_S = np.zeros_like(P_from_Stress)
+        t_years_S = np.zeros_like(P_from_Stress)
+
+    # === Combine both results ===
     df_out = pd.DataFrame({
         "Temperature (°F)": T_vals,
         "P (from Temperature Spline)": P_from_T,
+        "Life from T (hours)": t_hours_T,
+        "Life from T (years)": t_years_T,
         "Stress (ksi)": Stress_vals,
-        "P (from Stress Spline)": P_from_Stress
+        "P (from Stress Spline)": P_from_Stress,
+        "Life from Stress (hours)": t_hours_S,
+        "Life from Stress (years)": t_years_S
     })
 
-    st.success("✅ Calculations completed using both splines!")
+    st.success("✅ Dual spline calculations completed successfully!")
     st.dataframe(df_out)
 
-    # --- DOWNLOAD EXCEL RESULT ---
+    # --- Download Excel ---
     output = BytesIO()
     with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
-        df_out.to_excel(writer, index=False, sheet_name='Dual_Spline_Result')
+        df_out.to_excel(writer, index=False, sheet_name='Dual_Spline_Life')
     output.seek(0)
 
     st.download_button(
         label="📥 Download Excel Result",
         data=output,
-        file_name="LMP_Dual_Spline_Result.xlsx",
+        file_name="LMP_DualSpline_Life.xlsx",
         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
 
 elif not uploaded_temp:
-    st.warning("📂 Please upload the Temperature Excel file.")
+    st.warning("📂 Please upload the Temperature Excel file (values in second column).")
 elif not uploaded_stress:
-    st.warning("📂 Please upload the Stress Excel file.")
+    st.warning("📂 Please upload the Stress Excel file (values in first column).")
