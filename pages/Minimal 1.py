@@ -98,7 +98,6 @@ if uploaded_file:
     # === OUTPUT TABLE ===
     df_out = pd.DataFrame({
         "Temperature (°F)": T_vals,
-        "Stress from T (ksi)": Stress_from_T,
         "P from T": P_from_T,
         "Life from T (hours, max 200000)": t_hours_T,
         "Life from T (years)": t_years_T,
@@ -126,3 +125,4 @@ if uploaded_file:
 
 else:
     st.info("📂 Please upload an Excel file with Stress (col 1) and Temperature (col 2).")
+
