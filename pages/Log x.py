@@ -9,7 +9,7 @@ Equation:
 \log x = -7.1438 + 2.1761 \times 10^{-4} \, T \, (20 + \log t)
 \]
 Where:
-- **x** = stress (ksi)  
+- **x** = oxide thickness (mm)  
 - **t** = time (hours)  
 - **T** = temperature in °R (Rankine)
 """)
