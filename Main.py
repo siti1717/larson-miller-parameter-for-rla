@@ -26,15 +26,16 @@ st.markdown("""
 - Allow you to **download the results as an Excel file**.
 """)
 
+st.markdown("""
 ## **2️⃣ Select Material Model**
+
 From the **sidebar**, choose one of the following material models:
 
-| Model Name | Material Type |
-|-------------|----------------|
-| **Mean 1** | $1\\tfrac{1}{4}$Cr – $\\tfrac{1}{2}$Mo–Si Steel |
-| **Mean 2** | $2\\tfrac{1}{4}$Cr – 1Mo Steel |
-| **Minimum 1** | $1\\tfrac{1}{4}$Cr – $\\tfrac{1}{2}$Mo–Si Steel |
-| **Minimum 2** | $2\\tfrac{1}{4}$Cr – 1Mo Steel |
+- **Mean 1:** $1\\tfrac{1}{4}$Cr – $\\tfrac{1}{2}$Mo–Si Steel  
+- **Mean 2:** $2\\tfrac{1}{4}$Cr – 1Mo Steel  
+- **Minimum 1:** $1\\tfrac{1}{4}$Cr – $\\tfrac{1}{2}$Mo–Si Steel *(Minimum Curve)*  
+- **Minimum 2:** $2\\tfrac{1}{4}$Cr – 1Mo Steel *(Minimum Curve)*
+""")
 
 ---
 
@@ -91,6 +92,7 @@ to export all data (Temperature, Stress, P, and Life predictions) into an Excel 
 | 970.4 | 35.71 | 93,241 | 10,64 | 4.69 | 42.47 | 200,000 | 22.8 | 
 | 970.4 | 35.71 | 93,241 | 10,64 | 4.92 | 40.92 | 200,000 | 22.8 | 
 """)
+
 
 
 
