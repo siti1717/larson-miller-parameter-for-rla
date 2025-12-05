@@ -26,8 +26,6 @@ st.markdown("""
 - Allow you to **download the results as an Excel file**.
 """)
 
----
-
 ## **2️⃣ Select Material Model**
 From the **sidebar**, choose one of the following material models:
 
@@ -93,6 +91,7 @@ to export all data (Temperature, Stress, P, and Life predictions) into an Excel 
 | 970.4 | 35.71 | 93,241 | 10,64 | 4.69 | 42.47 | 200,000 | 22.8 | 
 | 970.4 | 35.71 | 93,241 | 10,64 | 4.92 | 40.92 | 200,000 | 22.8 | 
 """)
+
 
 
 
