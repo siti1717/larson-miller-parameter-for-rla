@@ -19,6 +19,7 @@ Where:
 ---
 **Formula used in this calculator:**
 """)
+
 # --- User Inputs ---
 x_mm = st.number_input("Enter oxide thickness (mm):", min_value=0.0, step=0.01, format="%.4f")
 t_years = st.number_input("Enter exposure time (years):", min_value=0.0, step=0.1, format="%.2f")
