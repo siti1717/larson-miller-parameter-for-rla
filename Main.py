@@ -28,9 +28,9 @@ st.latex(r"""\log x = -7.1438 + 2.1761\times10^{-4}\,T\,(20 + \log t)""")
 st.markdown("""
 - Display results in °R, °F, and °C.  
 - Allow you to **download the results as an Excel file**.
-""")
 
-st.markdown("""
+---
+
 ## **2️⃣ Select Material Model**
 
 From the **sidebar**, choose one of the following material models:
@@ -39,7 +39,6 @@ From the **sidebar**, choose one of the following material models:
 - **Mean 2:** $2\\tfrac{1}{4}$Cr – 1Mo Steel  
 - **Minimum 1:** $1\\tfrac{1}{4}$Cr – $\\tfrac{1}{2}$Mo–Si Steel *(Minimum Curve)*  
 - **Minimum 2:** $2\\tfrac{1}{4}$Cr – 1Mo Steel *(Minimum Curve)*
-""")
 
 ---
 
@@ -88,28 +87,10 @@ to export all data (Temperature, Stress, P, and Life predictions) into an Excel 
 
 ---
 
-
 ## **📘 Example Output**
 
 | Temperature (°F) | P from T | Life (hours) | Life (years) | Stress (ksi) | P from Stress | Life (hours) | Life (years) |
 |-----------------:|----------:|--------------:|--------------:|---------------:|---------------:|---------------:|---------------:|
-| 970.4 | 35.71 | 93,241 | 10,64 | 4.69 | 42.47 | 200,000 | 22.8 | 
-| 970.4 | 35.71 | 93,241 | 10,64 | 4.92 | 40.92 | 200,000 | 22.8 | 
+| 970.4 | 35.71 | 93,241 | 10.64 | 4.69 | 42.47 | 200,000 | 22.8 | 
+| 970.4 | 35.71 | 93,241 | 10.64 | 4.92 | 40.92 | 200,000 | 22.8 | 
 """)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
