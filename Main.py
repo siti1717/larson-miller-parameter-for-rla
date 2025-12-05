@@ -15,9 +15,7 @@ st.markdown("""
   - Convert thickness from **mm → mils**.  
   - Convert time from **years → hours**.  
   - Calculate the **operating temperature (°R)** using the Larson–Miller oxidation equation:  
-    \[
-    T = \\frac{\\log(x \\times 39.37) + 7.1438}{2.1761\\times10^{-4}\\,(20 + \\log(t\\times8760))}
-    \]
+    st.latex(r"""\log x = -7.1438 + 2.1761\times10^{-4}\,T\,(20 + \log t)""")
   - Display results in °R, °F, and °C.  
   - Allow you to **download the results as an Excel file**.
 
@@ -93,6 +91,7 @@ to export all data (Temperature, Stress, P, and Life predictions) into an Excel 
 | 970.4 | 35.71 | 93,241 | 10,64 | 4.69 | 42.47 | 200,000 | 22.8 | 
 | 970.4 | 35.71 | 93,241 | 10,64 | 4.92 | 40.92 | 200,000 | 22.8 | 
 """)
+
 
 
 
