@@ -7,6 +7,7 @@ st.markdown("""
 
 ## **1️⃣ Temperature Calculation (°R)**
 
+st.markdown("""
 ### **Option A – Using Excel Input**
 - Go to the **“Temperature Excel”** page.  
 - Upload an Excel or CSV file containing **oxide thickness values (mm)**.  
@@ -14,10 +15,16 @@ st.markdown("""
 - The system will automatically:
   - Convert thickness from **mm → mils**.  
   - Convert time from **years → hours**.  
-  - Calculate the **operating temperature (°R)** using the Larson–Miller oxidation equation:  
-    st.latex(r"""\log x = -7.1438 + 2.1761\times10^{-4}\,T\,(20 + \log t)""")
-  - Display results in °R, °F, and °C.  
-  - Allow you to **download the results as an Excel file**.
+  - Calculate the **operating temperature (°R)** using the Larson–Miller oxidation equation:
+""")
+
+st.latex(r"""\log x = -7.1438 + 2.1761\times10^{-4}\,T\,(20 + \log t)""")
+
+st.markdown("""
+- Display results in °R, °F, and °C.  
+- Allow you to **download the results as an Excel file**.
+""")
+
 
 ### **Option B – Manual Input on the Web**
 - Go to the **“Temperature Manual”** page.  
@@ -91,6 +98,7 @@ to export all data (Temperature, Stress, P, and Life predictions) into an Excel 
 | 970.4 | 35.71 | 93,241 | 10,64 | 4.69 | 42.47 | 200,000 | 22.8 | 
 | 970.4 | 35.71 | 93,241 | 10,64 | 4.92 | 40.92 | 200,000 | 22.8 | 
 """)
+
 
 
 
