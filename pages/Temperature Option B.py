@@ -3,14 +3,12 @@ import numpy as np
 
 st.title("Larson–Miller Temperature Calculator")
 
-st.markdown("""
-This app calculates **temperature (T)** from the **Larson–Miller oxidation equation**:
-
-# Menggunakan st.latex untuk persamaan utama
+# --- Persamaan Utama (Diperbaiki: Dikeluarkan dari string markdown di atasnya) ---
 st.latex(r"""
 \log x = -7.1438 + 2.1761\times10^{-4}\,T\,(20 + \log t)
 """)
 
+# --- Teks Penjelasan Lanjutan (Diperbaiki) ---
 st.markdown("""
 Where:
 - **x** = oxide thickness (in mils, converted automatically from mm)  
