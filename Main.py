@@ -6,10 +6,11 @@ st.markdown("""
 ---
 
 ## **1️⃣ Temperature Calculation (°R)**
+""")
 
 st.markdown("""
 ### **Option A – Using Excel Input**
-- Go to the **“Temperature Excel”** page.  
+- Go to the **"Temperature Excel"** page.  
 - Upload an Excel or CSV file containing **oxide thickness values (mm)**.  
 - Enter the **exposure time (years)** in the input field.  
 - The system will automatically:
@@ -24,12 +25,6 @@ st.markdown("""
 - Display results in °R, °F, and °C.  
 - Allow you to **download the results as an Excel file**.
 """)
-
-
-### **Option B – Manual Input on the Web**
-- Go to the **“Temperature Manual”** page.  
-- Enter **oxide thickness (mm)** and **exposure time (years)** manually.  
-- The system performs the same conversion and calculation as above and displays results directly on screen.
 
 ---
 
@@ -98,6 +93,7 @@ to export all data (Temperature, Stress, P, and Life predictions) into an Excel 
 | 970.4 | 35.71 | 93,241 | 10,64 | 4.69 | 42.47 | 200,000 | 22.8 | 
 | 970.4 | 35.71 | 93,241 | 10,64 | 4.92 | 40.92 | 200,000 | 22.8 | 
 """)
+
 
 
 
