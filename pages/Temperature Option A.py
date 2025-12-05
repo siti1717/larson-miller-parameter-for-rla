@@ -7,7 +7,7 @@ st.title("Larson–Miller Calculator: Temperature (T) in Rankine (°R)")
 
 st.markdown("This calculator computes **temperature (T)** from the Larson–Miller oxidation equation:")
 
-# Menggunakan st.latex untuk persamaan utama
+#  persamaan utama
 st.latex(r"""
 \log x = -7.1438 + 2.1761\times10^{-4}\,T\,(20 + \log t)
 """)
@@ -21,7 +21,7 @@ Where:
 **Formula used in this calculator:**
 """)
 
-# Menggunakan st.latex untuk persamaan yang diformulasikan ulang
+#  persamaan yang diformulasikan ulang
 st.latex(r"""
 T = \frac{\log(x\times39.37) + 7.1438}{2.1761\times10^{-4}\,(20 + \log(t\times8760))}
 """)
@@ -86,6 +86,7 @@ elif uploaded_file is None:
     st.info("ℹ️ Please upload an Excel or CSV file containing oxide thickness (mm).")
 elif t_value == 0:
     st.warning("⚠️ Please enter an exposure time (years) greater than 0.")
+
 
 
 
