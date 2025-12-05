@@ -1,4 +1,8 @@
 import streamlit as st
+import pandas as pd
+import numpy as np
+from scipy.interpolate import CubicSpline
+from io import BytesIO
 
 st.markdown("""
 # 🧭 **User Guide – Larson–Miller Parameter Web Application**
@@ -92,6 +96,7 @@ to export all data (Temperature, Stress, P, and Life predictions) into an Excel 
 | 970.4 | 35.71 | 93,241 | 10,64 | 4.69 | 42.47 | 200,000 | 22.8 | 
 | 970.4 | 35.71 | 93,241 | 10,64 | 4.92 | 40.92 | 200,000 | 22.8 | 
 """)
+
 
 
 
