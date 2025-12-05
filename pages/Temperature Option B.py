@@ -6,16 +6,19 @@ st.title("Larson–Miller Temperature Calculator")
 st.markdown("""
 This app calculates **temperature (T)** from the **Larson–Miller oxidation equation**:
 
-\[
-\log x = -7.1438 + 2.1761 \times 10^{-4} \times T \times (20 + \log t)
-\]
-
-Where:
-- **x** = oxide thickness (in mils, automatically converted from mm)  
-- **t** = exposure time (in hours, automatically converted from years)  
-- **T** = temperature (in Rankine, °R)
+# Menggunakan st.latex untuk persamaan utama
+st.latex(r"""
+\log x = -7.1438 + 2.1761\times10^{-4}\,T\,(20 + \log t)
 """)
 
+st.markdown("""
+Where:
+- **x** = oxide thickness (in mils, converted automatically from mm)  
+- **t** = exposure time (in hours, converted automatically from years)  
+- **T** = temperature in °Rankine (°R)
+---
+**Formula used in this calculator:**
+""")
 # --- User Inputs ---
 x_mm = st.number_input("Enter oxide thickness (mm):", min_value=0.0, step=0.01, format="%.4f")
 t_years = st.number_input("Enter exposure time (years):", min_value=0.0, step=0.1, format="%.2f")
