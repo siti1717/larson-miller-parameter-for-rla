@@ -5,22 +5,28 @@ from io import BytesIO
 
 st.title("Larson–Miller Calculator: Temperature (T) in Rankine (°R)")
 
+st.markdown("This calculator computes **temperature (T)** from the Larson–Miller oxidation equation:")
+
+# Menggunakan st.latex untuk persamaan utama
+st.latex(r"""
+\log x = -7.1438 + 2.1761\times10^{-4}\,T\,(20 + \log t)
+""")
+
 st.markdown("""
-This calculator computes **temperature (T)** from the Larson–Miller oxidation equation:
-
-\[\log x = -7.1438 + 2.1761\times10^{-4}\,T\,(20 + \log t)\]
-
 Where:
 - **x** = oxide thickness (in mils, converted automatically from mm)  
 - **t** = exposure time (in hours, converted automatically from years)  
 - **T** = temperature in °Rankine (°R)
 ---
 **Formula used in this calculator:**
-\[
-T = \frac{\log(x\times39.37) + 7.1438}{2.1761\times10^{-4}\,(20 + \log(t\times8760))}
-\]
----
 """)
+
+# Menggunakan st.latex untuk persamaan yang diformulasikan ulang
+st.latex(r"""
+T = \frac{\log(x\times39.37) + 7.1438}{2.1761\times10^{-4}\,(20 + \log(t\times8760))}
+""")
+
+st.markdown("---")
 
 # === Upload Excel or CSV file ===
 uploaded_file = st.file_uploader(
@@ -80,5 +86,6 @@ elif uploaded_file is None:
     st.info("ℹ️ Please upload an Excel or CSV file containing oxide thickness (mm).")
 elif t_value == 0:
     st.warning("⚠️ Please enter an exposure time (years) greater than 0.")
+
 
 
