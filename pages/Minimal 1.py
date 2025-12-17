@@ -1,6 +1,8 @@
 import streamlit as st
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
+
 st.title("Larson–Miller Plot with Oxide-Based Temperature")
 
 st.markdown("""
@@ -91,4 +93,5 @@ df_summary = pd.DataFrame({
 })
 
 st.table(df_summary)
+
 
