@@ -1,129 +1,151 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-from scipy.interpolate import CubicSpline
+from scipy.interpolate import PchipInterpolator
 from io import BytesIO
 
-st.title("Larson–Miller Parameter - 1¼ Cr - ½ Mo Steel (Temperature & Stress Comparison)")
-
+# ============================================================
+# TITLE & DESCRIPTION
+# ============================================================
+st.title("Larson–Miller Parameter – 1¼ Cr – ½ Mo Steel")
 st.markdown("""
-This tool calculates **creep remaining life** for **1¼ Cr - ½ Mo Steel**
-using two independent methods:
+### Remaining Life Assessment using Larson–Miller Parameter (LMP)
 
-1. **From Temperature (°F):** Temperature → Stress → P → Life  
-2. **From Stress (ksi):** Stress → P → Life  
+This application calculates **creep remaining life** of **1¼ Cr – ½ Mo steel**
+using two independent paths:
 
-📘 Notes:
-- Temperature values are read from the **second column (column B)** of the uploaded Excel file.  
-- Stress values are read from the **first column (column A)** of the uploaded Excel file.  
-- All life predictions are capped at **200,000 hours** maximum.
+1. **Temperature-based path**  
+   Temperature → Allowable Stress → LMP → Remaining Life  
+
+2. **Stress-based path**  
+   Stress → LMP → Remaining Life  
+
+📌 **Notes**
+- Stress values are read from **Column A**
+- Temperature values (°F) are read from **Column B**
+- Maximum life is limited to **200,000 hours**
+- Interpolation uses **PCHIP (monotonic, no overshoot)**
 """)
 
-# === Upload Excel File ===
+# ============================================================
+# UPLOAD FILE
+# ============================================================
 uploaded_file = st.file_uploader(
-    label="Upload Excel file (Stress in 1st col, Temperature (°F) in 2nd col):",
+    "Upload Excel file (Stress in col A, Temperature °F in col B)",
     type=["xlsx", "xls"]
 )
 
-# === SPLINE 1: Temperature → Stress ===
-x2 = np.array([
-    427.00938639356104, 533.863950267865, 640.5369779181265, 747.0870294166173,
-    823.918728223842, 838.4923750229345, 851.7011434943004, 862.9059831055836,
-    873.4507112736203, 883.9943351660085, 890.7113744469356, 901.9328678896384,
-    912.8662277367607, 923.7637366457648, 934.6701443610918, 945.5880591535613,
-    956.5121110538397, 966.0686107639804, 993.3369408556557, 1000.4932109968408,
-    1013.3573406508535, 1026.9211857081007, 1041.1951754385966, 1056.132344044696,
-    1071.761748476545, 1085.9573296785275
+# ============================================================
+# DATA FOR INTERPOLATION
+# ============================================================
+
+# --- Temperature (°F) → Stress (ksi)
+T_data = np.array([
+    427.009, 533.864, 640.537, 747.087, 823.919, 838.492, 851.701,
+    862.906, 873.451, 883.994, 890.711, 901.933, 912.866, 923.764,
+    934.670, 945.588, 956.512, 966.069, 993.337, 1000.493,
+    1013.357, 1026.921, 1041.195, 1056.132, 1071.762, 1085.957
 ])
 
-y2 = np.array([
-    48.63221464134243, 46.885451342721545, 44.765242097498955, 42.392053340062304,
-    36.8987839319856, 33.94161979261263, 30.653268566954907, 27.51896618447742,
-    24.55398606811145, 21.572441817017186, 19.702561000201648, 18.85089757519347,
-    17.619057295741847, 16.21513251332179, 14.85392200125338, 13.547945459467279,
-    12.271427035165068, 11.144654041406007, 9.796949646778195, 9.118862911165674,
-    8.457933485957398, 7.79618607878723, 7.108590441621292, 6.507864488808227,
-    5.924271539996955, 5.424856371263967
+Stress_data = np.array([
+    48.63, 46.89, 44.77, 42.39, 36.90, 33.94, 30.65,
+    27.52, 24.55, 21.57, 19.70, 18.85, 17.62, 16.22,
+    14.85, 13.55, 12.27, 11.14, 9.80, 9.12,
+    8.46, 7.80, 7.11, 6.51, 5.92, 5.42
 ])
 
-sort_idx = np.argsort(x2)
-x2_sorted = x2[sort_idx]
-y2_sorted = y2[sort_idx]
+# Sort (safety)
+idx = np.argsort(T_data)
+T_data = T_data[idx]
+Stress_data = Stress_data[idx]
 
-cs_TtoStress = CubicSpline(x2_sorted, y2_sorted, extrapolate=True)
+interp_T_to_Stress = PchipInterpolator(T_data, Stress_data)
 
-# === SPLINE 2: Stress → P ===
-x1 = np.array([
-    30.31, 30.69, 31.07, 31.45, 31.83, 32.12, 32.26, 32.62, 32.94, 33.27,
-    33.53, 33.80, 34.03, 34.17, 34.46, 34.72, 34.86, 35.16, 35.32, 35.62,
-    35.87, 36.10, 36.42, 36.74, 37.09, 37.45, 37.83, 38.09
+# --- Stress (ksi) → LMP (P / 1000)
+Stress_LMP = np.array([
+    48.61, 46.85, 44.77, 42.43, 39.84, 37.95, 36.65,
+    33.95, 31.24, 27.81, 25.05, 21.90, 19.72,
+    18.23, 16.83, 15.52, 14.46, 13.28,
+    12.24, 11.22, 9.99, 9.29, 8.60,
+    7.93, 7.27, 6.72, 5.95, 5.74
 ])
 
-y1 = np.array([
-    48.61, 46.85, 44.77, 42.43, 39.84, 37.95, 36.65, 33.95, 31.24, 27.81,
-    25.05, 21.90, 19.72, 18.23, 16.83, 15.52, 14.46, 13.28, 12.24, 11.22,
-    9.99, 9.29, 8.60, 7.93, 7.27, 6.72, 5.95, 5.74
+P_LMP = np.array([
+    30.31, 30.69, 31.07, 31.45, 31.83, 32.12, 32.26,
+    32.62, 32.94, 33.27, 33.53, 33.80, 34.03,
+    34.17, 34.46, 34.72, 34.86, 35.16,
+    35.32, 35.62, 35.87, 36.10, 36.42,
+    36.74, 37.09, 37.45, 37.83, 38.09
 ])
 
-cs_StressToP = CubicSpline(y1[::-1], x1[::-1], extrapolate=True)
+interp_Stress_to_P = PchipInterpolator(Stress_LMP[::-1], P_LMP[::-1])
 
-# === PROCESS FILE ===
+# ============================================================
+# PROCESS FILE
+# ============================================================
 if uploaded_file:
     df = pd.read_excel(uploaded_file)
 
-    Stress_vals = df.iloc[:, 0].dropna().to_numpy()
-    T_vals = df.iloc[:, 1].dropna().to_numpy()
+    Stress_input = df.iloc[:, 0].to_numpy()
+    T_input = df.iloc[:, 1].to_numpy()
 
-    # === PATH 1: From Temperature ===
-    Stress_from_T = cs_TtoStress(T_vals)
-    P_from_T = cs_StressToP(Stress_from_T)
+    # ========================================================
+    # PATH 1 – TEMPERATURE BASED
+    # ========================================================
+    Stress_from_T = interp_T_to_Stress(T_input)
+    P_from_T = interp_Stress_to_P(Stress_from_T)
 
-    T_rankine = T_vals + 459.67
-    t_hours_T = 10 ** ((P_from_T * 1000 / T_rankine) - 20)
-    t_hours_T = np.minimum(t_hours_T, 200000)
-    t_years_T = t_hours_T / (24 * 365)
+    T_R = T_input + 459.67
+    Life_hours_T = 10 ** ((P_from_T * 1000 / T_R) - 20)
+    Life_hours_T = np.minimum(Life_hours_T, 200_000)
+    Life_years_T = Life_hours_T / (24 * 365)
 
-    # === PATH 2: From Stress ===
-    P_from_S = cs_StressToP(Stress_vals)
-
+    # ========================================================
+    # PATH 2 – STRESS BASED
+    # ========================================================
     T_ref = st.number_input(
-        "Enter reference temperature (°F) for stress-based life:",
-        min_value=0.0,
-        step=1.0,
-        value=950.0
+        "Reference temperature for stress-based calculation (°F)",
+        value=950.0, step=1.0
     )
 
     T_ref_R = T_ref + 459.67
-    t_hours_S = 10 ** ((P_from_S * 1000 / T_ref_R) - 20)
-    t_hours_S = np.minimum(t_hours_S, 200000)
-    t_years_S = t_hours_S / (24 * 365)
+    P_from_S = interp_Stress_to_P(Stress_input)
 
-    # === OUTPUT TABLE ===
-    df_out = pd.DataFrame({
-        "Temperature (°F)": T_vals,
-        "P from Temperature": P_from_T,
-        "Life from Temperature (hours)": t_hours_T,
-        "Life from Temperature (years)": t_years_T,
-        "Input Stress (ksi)": Stress_vals,
-        "P from Stress": P_from_S,
-        "Life from Stress (hours)": t_hours_S,
-        "Life from Stress (years)": t_years_S
+    Life_hours_S = 10 ** ((P_from_S * 1000 / T_ref_R) - 20)
+    Life_hours_S = np.minimum(Life_hours_S, 200_000)
+    Life_years_S = Life_hours_S / (24 * 365)
+
+    # ========================================================
+    # OUTPUT TABLE
+    # ========================================================
+    result = pd.DataFrame({
+        "Temperature (°F)": T_input,
+        "Stress from Temperature (ksi)": Stress_from_T,
+        "LMP from Temperature": P_from_T,
+        "Life from Temperature (hours)": Life_hours_T,
+        "Life from Temperature (years)": Life_years_T,
+        "Input Stress (ksi)": Stress_input,
+        "LMP from Stress": P_from_S,
+        "Life from Stress (hours)": Life_hours_S,
+        "Life from Stress (years)": Life_years_S
     })
 
-    st.success("✅ Dual calculation completed successfully!")
-    st.dataframe(df_out)
+    st.success("✅ Remaining life calculation completed successfully")
+    st.dataframe(result)
 
-    # === DOWNLOAD EXCEL ===
+    # ========================================================
+    # DOWNLOAD
+    # ========================================================
     output = BytesIO()
     with pd.ExcelWriter(output, engine="xlsxwriter") as writer:
-        df_out.to_excel(writer, index=False, sheet_name="Dual_Result")
+        result.to_excel(writer, index=False, sheet_name="LMP_Result")
 
     st.download_button(
-        label="📥 Download Excel Result",
+        "📥 Download Result (Excel)",
         data=output.getvalue(),
-        file_name="LMP_Temperature_Stress_Comparison.xlsx",
+        file_name="LMP_Remaining_Life_Result.xlsx",
         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
 
 else:
-    st.info("📂 Please upload an Excel file with Stress (col 1) and Temperature (col 2).")
+    st.info("📂 Please upload Excel file to start calculation.")
