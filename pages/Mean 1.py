@@ -4,11 +4,12 @@ import numpy as np
 from scipy.interpolate import CubicSpline
 from io import BytesIO
 
-st.title("Larson–Miller Parameter - Mean 2¼ Cr - 1 Mo Steel (Temperature & Stress Comparison)")
+st.title("Larson–Miller Parameter - Mean 1¼ Cr - ½ Mo Steel (Temperature & Stress Comparison)")
 
 st.markdown("""
-This tool calculates **creep remaining life** for **2¼ Cr - 1 Mo Steel**  
+This tool calculates **creep remaining life** for **1¼ Cr - ½ Mo Steel**  
 using two independent methods:
+
 
 1. **From Temperature (°F):** Temperature → Stress → P → Life  
 2. **From Stress (ksi):** Stress → P → Life  
@@ -99,3 +100,4 @@ if uploaded_file:
 
 else:
     st.info("📂 Please upload an Excel file with Stress (col 1) and Temperature (col 2).")
+
