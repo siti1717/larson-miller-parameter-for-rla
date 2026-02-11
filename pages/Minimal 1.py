@@ -58,7 +58,9 @@ cs_TtoStress = CubicSpline(x2_sorted, y2_sorted, extrapolate=True)
 # === SPLINE 2: Stress → P ===
 x1 = np.array([30.31,30.69,31.07,31.45,31.83,32.12,32.26,32.62,32.94,33.27,33.53,33.80,34.03,34.17,34.46,34.72,34.86,35.16,35.32,35.62,35.87,36.10,36.42,36.74,37.09,37.45,37.83,38.09])
 y1 = np.array([48.61,46.85,44.77,42.43,39.84,37.95,36.65,33.95,31.24,27.81,25.05,21.90,19.72,18.23,16.83,15.52,14.46,13.28,12.24,11.22,9.99,9.29,8.60,7.93,7.27,6.72,5.95,5.74])
-
+# Sort stress to ensure increasing order
+sort_idx2 = np.argsort(y1)
+cs_StressToP = CubicSpline(y1[sort_idx2], x1[sort_idx2], extrapolate=True)
 
 # === PROCESS FILE ===
 if uploaded_file:
@@ -121,6 +123,7 @@ if uploaded_file:
 
 else:
     st.info("📂 Please upload an Excel file with Stress (col 1) and Temperature (col 2).")
+
 
 
 
